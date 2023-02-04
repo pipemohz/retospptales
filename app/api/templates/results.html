@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<div class="text-center main-banner">
+    <div class="row">
+        <h1 class="main-title">Resultados</h1>
+    </div>
+</div>
+
+
+<div class="px-4 py-5 my-5 text-center">
+
+  <div class="col-lg-6 mx-auto">
+    {% if query == "commissions" %}
+    <h3 class="table-title">Comisiones</h3>
+    {% elif query == "sales" %}
+    <h3 class="table-title">Ventas</h3>
+    {% endif %}
+    {% if status == 400 %}
+      <p>La consulta es invalida.</p>
+    {% else %}
+      {% if query == "commissions" %}
+
+        {% if response.data.daily %}
+        <h4>Con las ventas especificadas podrás disfrutar aproximadamente de las siguientes comisiones:</h4>
+        {% else %}
+            <h4>No hay comisiones para el usuario.</h4>
+        {% endif %}
+
+        {% for key in response.data %}
+            <div class="row text-center">
+              <div class="col-md-4 offset-md-4">
+                <div class="card mb-4 rounded-3 shadow-sm">
+                  <div class="card-header py-3" style="color: white; background-color:#0094d6">
+                    <h4 class="my-0 fw-normal">{{ key }}</h4>
+                  </div>
+                  <div class="card-body">
+                    {% if "commission" in response.data[key] %}
+                      <h1 class="card-title pricing-card-title">${{ response.data[key].commission }}</h1>
+                    {% else %}
+                      <h1 class="card-title pricing-card-title">No disponible</h1>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+        {% endfor %}
+
+        {% if response.data.daily %}
+          {% if response.data.daily.status_cartera > 0 %}
+            <h4>Importante:</h4>
+            <h5>Recuerda estar al día con tu cartera para poder recibir tus comisiones.</h5>
+          {% endif %}
+        {% endif %}
+
+
+      {% elif query == "sales" %}
+        <table class="table">
+          <thead class="gana-table thead">
+            <tr>
+              <th scope="col">Producto</th>
+              <th scope="col">Venta total</th>
+              <th scope="col">Comisión bruta</th>
+            </tr>
+          </thead class="gana-table">
+          <tbody class="gana-table">
+            {% for product in response.data %}
+              <tr>
+                <td>{{ product.product }}</td>
+                <td>${{ product.total_sale }}</td>
+                <td>${{ product.gross_commission }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

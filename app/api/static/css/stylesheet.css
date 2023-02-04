@@ -1,0 +1,117 @@
+.app-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.form-button{
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.app-products {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.status {
+    text-align: center;
+}
+
+label.status {
+    font-size: 20px;
+}
+
+div.logo {
+    height: 8rem;
+}
+
+img.logo {
+    height: 40px;
+}
+
+div.grid {
+    display: grid;
+}
+
+.nav-text{
+    font-weight: bold;
+    color: #757575;
+}
+
+div.navbar-row{
+    background-color: white;
+}
+
+.main-banner {
+    background-color: #97028a;
+    color: white;
+    padding-bottom: 3rem!important;
+    padding-top: 3rem!important;
+    font-weight: bold;
+}
+
+.main-title {
+    color: white;
+    font-size: 5rem;
+}
+
+.nav-link {
+    color: #ea9100;
+    font-weight: bold;
+}
+
+.link.active {
+    color: #97028a;
+    font-weight: bold;
+}
+
+
+.tab-title {
+    color: #0094d6;
+    font-weight: bold;
+    font-size: xxx-large;
+}
+
+
+.form-label {
+    color: #ea9100;
+    font-size: x-large;
+    font-weight: bold;
+}
+
+
+.form-control[readonly]{
+    /* background-color: #b61a1a; */
+    opacity: 1;
+    color: #757575;
+    font-weight: bold;
+}
+
+
+.table-title {
+    color: #ea9100;
+    font-weight: bolder;
+    font-size: xx-large;
+}
+
+.gana-table.thead{
+    color: #0094d6;
+    font-size: x-large;
+}
+
+.gana-table {
+    font-size: large;
+    font-weight: bold;
+    color: #757575;
+}
+
+.gana-card{
+    color: white;
+    font-weight: bold;
+    font-size: large;
+    background-color: #0094d6;
+}

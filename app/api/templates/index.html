@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="text-center main-banner">
+    <div class="row">
+        <h1 class="main-title">Retos</h1>
+        <h1 class="main-title">comerciales</h1>
+    </div>
+</div>
+
+<div class="container px-4 py-5 my-5">
+    {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p style="color: crimson;">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+    {% endwith %}
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#service-tab-pane"
+                type="button" role="tab" aria-controls="service-tab-pane" aria-selected="true">Ventas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#commercial-tab-pane"
+                type="button" role="tab" aria-controls="commercial-tab-pane" aria-selected="false">Comisiones</button>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="service-tab-pane" role="tabpanel" aria-labelledby="home-tab"
+            tabindex="0">
+            <div class="container px-4 py-5" id="service">
+                <div class="row">
+                    <h2 class="pb-2 tab-title">Ventas y comisiones mes en curso</h2>
+                    <form action="{{ url_for('main.sales') }}" method="get">
+                        <div class="row">
+                            <div class="col-md-3 offset-md-3">
+                                <label class="form-label">Id del asesor(a)</label>
+                                <input type="number" name="id" class="form-control" value="{{ session.id }}" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Periodo</label>
+                                <input type="month" class="form-control" value="{{ year }}-{{ month }}" readonly>
+                                <input type="number" name="month" class="form-control" value="{{ month }}" hidden>
+                            </div>
+                                <input type="number" name="year" class="form-control" value="{{ year }}" hidden>
+                            <div class="col-md-3 form-button">
+                                <button type="submit" class="btn btn-success">Consultar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="commercial-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+            <div class="container px-4 py-5" id="commercial">
+                <div class="row">
+                    <h2 class="pb-2 border-bottom tab-title">Retos comerciales</h2>
+                    <form action="{{ url_for('main.commissions') }}" method="post" enctype="application/JSON">
+                        <div class="row">
+                            <div class="col-md-3 offset-md-3">
+                                <label class="form-label">Id del asesor(a)</label>
+                                <input type="number" name="id" class="form-control" value="{{ session.id }}" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Periodo</label>
+                                <input type="month" class="form-control" value="{{ year }}-{{ month }}" readonly>
+                                <input type="number" name="month" class="form-control" value="{{ month }}" hidden>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" name="year" class="form-control" value="{{ year }}" hidden>
+                            </div>
+                        </div>
+                        <!-- <div class="mb-3">
+                            <label class="form-label">Id del asesor(a)</label>
+                            <input type="number" name="id" class="form-control" value="42787138" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Periodo</label>
+                            <input type="month" class="form-control" value="2023-01" readonly>
+                            <input type="number" name="month" class="form-control" value="01" hidden>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" name="year" class="form-control" value="2023" hidden>
+                        </div> -->
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3 class="table-title">Productos</h3>
+                                <h5>*Ingresa el valor que estimas vender este mes en cada producto</h5>
+                                <!-- <ol id="products"></ol> -->
+                                {% if products is not none %}
+                                    <table class="table">
+                                    <thead class="gana-table thead">
+                                        <tr>
+                                        <th scope="col">Código</th>
+                                        <th scope="col">Producto</th>
+                                        <th scope="col">*Venta esperada</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="gana-table">
+                                        {% for product in products %}
+                                        <tr>
+                                            <td>{{ product.code }}<input type="number" readonly name="codes" value="{{ product.code}}" hidden></td>
+                                            <td>{{ product.product }}</td>
+                                            <td><input type="number" name="values" required></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    </table>
+
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 offset-md-4 form-button">
+                                    <button type="submit" class="btn btn-success">Simular comisiones</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <!-- <button type="button" class="btn btn-primary" id="addNewProduct">Añadir</button>
+                        <button type="submit" class="btn btn-success">Consultar</button> -->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
