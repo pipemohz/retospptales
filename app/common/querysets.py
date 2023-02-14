@@ -1,16 +1,32 @@
-from app.database import query_database, write_database, \
-    clear_commissions_table
 from abc import ABC, abstractmethod
 from datetime import datetime as dt
+import logging
 
 
 class BaseQuerySet(ABC):
+    def __init__(self, conn) -> None:
+        self.conn = conn
+
     @abstractmethod
     def get(self, **kwargs):
         """
         Method to get data from database connection.
         """
         pass
+
+    def execute_query(self, query: str) -> list:
+        """
+        Make a query to fetch data from database.
+        """
+
+        with self.conn.cursor() as cursor:
+            try:
+                cursor.execute(query)
+                results = cursor.fetchall()
+            except Exception as e:
+                results = []
+
+        return results
 
 
 class ProductListQuerySet(BaseQuerySet):
@@ -20,7 +36,7 @@ class ProductListQuerySet(BaseQuerySet):
              {today.year},\
              {kwargs.get("id")}'
 
-        records = query_database(query)
+        records = self.execute_query(query)
         if not records:
             return {}
 
@@ -46,7 +62,7 @@ class SalesQuerySet(BaseQuerySet):
             and CedulaVendedor={kwargs.get("id")}\
             group by Producto'
 
-        records = query_database(query)
+        records = self.execute_query(query)
 
         data = [{
             'product': r[0],
@@ -60,10 +76,10 @@ class SalesQuerySet(BaseQuerySet):
 
 
 class CommissionsQuerySet(BaseQuerySet):
-    def __init__(self) -> None:
-        self._daily = DailyCommissionQuerySet()
-        self._staggered = StaggeredCommissionQueryset()
-        self._aguinaldo = AguinaldoQueryset()
+    def __init__(self, conn) -> None:
+        self._daily = DailyCommissionQuerySet(conn)
+        self._staggered = StaggeredCommissionQueryset(conn)
+        self._aguinaldo = AguinaldoQueryset(conn)
 
     def get(self, **kwargs) -> dict:
 
@@ -93,7 +109,7 @@ class DailyCommissionQuerySet(BaseQuerySet):
             where c.CedulaVendedor like '{kwargs.get('id')}'\
             ORDER BY c.CodProducto ASC"
 
-        records = query_database(query)
+        records = self.execute_query(query)
 
         if not records:
             return {}
@@ -131,15 +147,15 @@ class DailyCommissionQuerySet(BaseQuerySet):
 class StaggeredCommissionQueryset(BaseQuerySet):
     def get(self, **kwargs) -> dict:
 
-        write_database(kwargs.get('id'), kwargs.get('products'))
+        self.insert_products(kwargs['id'], kwargs['products'])
 
-        query = f"exec SP_RetoEscalonada {kwargs.get('year')},\
-            {kwargs.get('month')},\
-            '{kwargs.get('id')}'"
+        records = self.exec_SP_RetoEscalonada(
+            id=kwargs['id'],
+            year=kwargs['year'],
+            month=kwargs['month']
+        )
 
-        records = query_database(query)
-
-        clear_commissions_table()
+        self.exec_SP_TruncaPronosticoComisionEscalonada()
 
         if not records or not records[0][0]:
             return {}
@@ -150,6 +166,39 @@ class StaggeredCommissionQueryset(BaseQuerySet):
 
         return commission_total
 
+    def insert_products(self, id: str, products: list[dict]):
+        with self.conn.cursor() as cursor:
+            try:
+                for product in products:
+
+                    insert = f"INSERT INTO retos.PronosticoComisionEscalonada \
+                        (CedulaVendedor, CodProducto, VentaTotalMes)\
+                        VALUES ({id}, \
+                        {product.get('code')},\
+                        {product.get('value')})"
+
+                    cursor.execute(insert)
+
+            except Exception as e:
+                logging.info(f'Query has failed: {e}')
+
+            else:
+                self.conn.commit()
+
+    def exec_SP_RetoEscalonada(self, **kwargs) -> list:
+        query = f"exec SP_RetoEscalonada {kwargs.get('year')},\
+            {kwargs.get('month')},\
+            '{kwargs.get('id')}'"
+
+        records = self.execute_query(query)
+
+        return records
+
+    def exec_SP_TruncaPronosticoComisionEscalonada(self):
+        query = 'exec SP_TruncaPronosticoComisionEscalonada'
+        with self.conn.cursor() as cursor:
+            cursor.execute(query)
+
 
 class AguinaldoQueryset(BaseQuerySet):
     def get(self, **kwargs) -> dict:
@@ -158,7 +207,7 @@ class AguinaldoQueryset(BaseQuerySet):
             {kwargs.get('month')},\
             '{kwargs.get('id')}'"
 
-        records = query_database(query)
+        records = self.execute_query(query)
 
         if not records or not records[0][0]:
             return {}

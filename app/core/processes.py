@@ -1,6 +1,5 @@
-from app.core.validators import BaseValidator, CommissionsValidator
-from app.core.querysets import SalesQuerySet, CommissionsQuerySet,\
-    StaggeredCommissionQueryset
+from app.common.validators import BaseValidator, CommissionsValidator
+from app.common.querysets import SalesQuerySet, CommissionsQuerySet
 from app.api.api_responser import ApiResponser
 from pydantic import ValidationError
 from flask import Response
@@ -8,7 +7,8 @@ from flask import Response
 
 class BaseProcess:
 
-    def __init__(self, request) -> None:
+    def __init__(self, conn, request) -> None:
+        self._conn = conn
         self._request = request
 
     def make(self) -> Response:
@@ -30,26 +30,26 @@ class BaseProcess:
 
 
 class SalesProcess(BaseProcess):
-    def __init__(self, request) -> None:
-        super().__init__(request)
+    def __init__(self, conn, request) -> None:
+        super().__init__(conn, request)
         self._args = self._request.args.to_dict()
-        self._queryset = SalesQuerySet()
+        self._queryset = SalesQuerySet(conn)
         self._validator = BaseValidator
 
 
 class ComissionsProcess(BaseProcess):
-    def __init__(self, request) -> None:
-        super().__init__(request)
+    def __init__(self, conn, request) -> None:
+        super().__init__(conn, request)
         self._args = self._request.get_json()
-        self._queryset = CommissionsQuerySet()
+        self._queryset = CommissionsQuerySet(conn)
         self._validator = CommissionsValidator
 
 
 class SpecialProcess(BaseProcess):
-    def __init__(self, request) -> None:
-        super().__init__(request)
+    def __init__(self, conn, request) -> None:
+        super().__init__(conn, request)
         self.form_to_json()
-        self._queryset = CommissionsQuerySet()
+        self._queryset = CommissionsQuerySet(conn)
         self._validator = CommissionsValidator
 
     def form_to_json(self):
@@ -71,11 +71,3 @@ class SpecialProcess(BaseProcess):
             data.pop('values')
 
         self._args = data
-
-
-class StaggeredCommissionProcess(BaseProcess):
-    def __init__(self, request) -> None:
-        super().__init__(request)
-        self._args = self._request.get_json()
-        self._queryset = StaggeredCommissionQueryset()
-        self._validator = CommissionsValidator

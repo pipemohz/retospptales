@@ -4,9 +4,10 @@ from flask import request, session, redirect, url_for, flash
 from flask.templating import render_template
 from app.core.handlers import SalesHandler
 from app.core.processes import SpecialProcess
-from app.core.querysets import ProductListQuerySet
+from app.common.querysets import ProductListQuerySet
 from functools import wraps
 from datetime import datetime
+from app.settings.pyodbc import Connection
 
 
 def is_authenticated():
@@ -34,7 +35,8 @@ def login_required(f):
 @main.route('/index', methods=['GET'])
 @login_required
 def index():
-    products = ProductListQuerySet().get(id=session.get('id'))
+    with Connection() as conn:
+        products = ProductListQuerySet(conn).get(id=session.get('id'))
 
     today = datetime.today()
 
@@ -48,9 +50,9 @@ def index():
 @main.route('/commissions', methods=['POST'])
 def commissions():
 
-    sp = SpecialProcess(request)
-
-    response = sp.make()
+    with Connection() as conn:
+        sp = SpecialProcess(conn, request)
+        response = sp.make()
 
     today = datetime.today()
 
@@ -109,12 +111,12 @@ def login():
 
         if _id == password:
             session['id'] = _id
+            # cache.set('id', _id)
             session['token'] = password
             session['authenticated'] = True
             return redirect(url_for('main.index'))
         else:
             flash('Usuario o contraseña incorrecta')
-
 
     today = datetime.today()
 

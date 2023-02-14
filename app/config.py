@@ -1,5 +1,4 @@
 import os
-import tempfile
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -11,12 +10,13 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or \
         "IBQj^J9(HEAf#v0l'dvsdK3JcM4*ET"
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+    # Flask-JSON Settings
     JSON_ADD_STATUS = False
     JSON_SORT_KEYS = False
-    SESSION_PERMANENT = False
-    SESSION_TYPE = 'filesystem'
-    SESSION_FILE_DIR = os.path.join(tempfile.gettempdir(), 'session_cache')
-    SESSION_FILE_THRESHOLD = 100
+
+    # Flask-Session Settings
+    SESSION_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SECURE = True
 
     @staticmethod
     def init_app(app):
@@ -32,8 +32,6 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-    #     'sqlite:///' + os.path.join(basedir, 'portfolios.db')
     PRODUCTION = True
 
 

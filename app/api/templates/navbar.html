@@ -15,15 +15,15 @@
             <a class="navbar-brand" aria-current="page" href="{{ url_for('main.index') }}">Inicio</a>
           </li>
           <li class="nav-item">
-            <a class="navbar-brand" aria-current="page" href="{{ url_for('main.about') }}">About</a>
+            <a class="navbar-brand" aria-current="page" href="{{ url_for('main.about') }}">Acerca de</a>
           </li>
           {% if session.authenticated %}
           <li class="nav-item">
-            <a class="navbar-brand" aria-current="page" href="{{ url_for('main.logout') }}">Logout</a>
+            <a class="navbar-brand" aria-current="page" href="{{ url_for('main.logout') }}">Cerrar sesión</a>
           </li>
           {% else %}
           <li class="nav-item">
-            <a class="navbar-brand" aria-current="page" href="{{ url_for('main.login') }}">Login</a>
+            <a class="navbar-brand" aria-current="page" href="{{ url_for('main.login') }}">Iniciar sesión</a>
           </li>
           {% endif %}
         </ul>
